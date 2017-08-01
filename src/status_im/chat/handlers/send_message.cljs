@@ -52,6 +52,7 @@
      :to-message   to-message
      :type         (:type command)
      :has-handler  (:has-handler command)
+     ;; Lamport clock logic for send messages
      :clock-value  (inc clock-value)
      :show?        true}))
 
@@ -178,6 +179,7 @@
                            :content-type text-content-type
                            :outgoing     true
                            :timestamp    (time/now-ms)
+                           ;; Lamport clock logic for send messages
                            :clock-value  (inc clock-value)
                            :show?        true})
             message''   (cond-> message'

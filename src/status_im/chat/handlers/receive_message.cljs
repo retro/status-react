@@ -22,9 +22,16 @@
 
 (declare add-message-to-wallet)
 
+;; XXX: Delete me once clock semantics work
+(defn print-clock [from to user chat new]
+  (println
+   (str (apply str (take 4 (drop 2 to))) " received message (from "
+        (apply str (take 4 (drop 2 from))) ") with a user clock of "
+        user ". Chat clock is " chat ", so new clock will be " new ".")))
+
 (defn add-message
   [db {:keys [from group-id chat-id
-              message-id timestamp clock-value show?]
+              message-id timestamp clock-value]
        :as   message
        :or   {clock-value 0}}]
   (let [same-message     (messages/get-by-id message-id)
@@ -33,9 +40,10 @@
         exists?          (chats/exists? chat-id')
         active?          (chats/is-active? chat-id')
         chat-clock-value (messages/get-last-clock-value chat-id')
-        clock-value      (if (zero? clock-value)
-                           (inc chat-clock-value)
-                           clock-value)]
+        ;; Lamport clock logic for receiving messages
+        clock-new       (inc (max clock-value chat-clock-value))]
+    ;; XXX: Delete me once clock semantics work
+    (print-clock from current-identity clock-value chat-clock-value clock-new)
     (when (and (not same-message)
                (not= from current-identity)
                (or (not exists?) active?))
@@ -44,7 +52,7 @@
             message'         (assoc (cu/check-author-direction previous-message message)
                                :chat-id chat-id'
                                :timestamp (or timestamp (random/timestamp))
-                               :clock-value clock-value)]
+                               :clock-value clock-new)]
         (store-message message')
         (dispatch [:upsert-chat! {:chat-id    chat-id'
                                   :group-chat group-chat?}])
@@ -54,9 +62,7 @@
         (dispatch [::set-last-message message'])
         (when (= (:content-type message') content-type-command-request)
           (dispatch [:add-request chat-id' message']))
-        (dispatch [:add-unviewed-message chat-id' message-id])
-        (when-not show?
-          (dispatch [:send-clock-value-request! message])))
+        (dispatch [:add-unviewed-message chat-id' message-id]))
       (if (and
             (= (:content-type message) content-type-command)
             (not= chat-id' wallet-chat-id)

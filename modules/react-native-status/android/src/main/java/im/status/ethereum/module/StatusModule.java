@@ -596,7 +596,8 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Thread thread = new Thread() {
             @Override
             public void run() {
-                w3Bridge.sendRequest(host, payload, callback);
+                String res = Statusgo.CallRPC(payload);
+                callback.invoke(res);
             }
         };
 

@@ -38,7 +38,6 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
     private ServiceConnector status = null;
     private ExecutorService executor = null;
     private boolean debug;
-    private Web3Bridge w3Bridge = new Web3Bridge();
 
     StatusModule(ReactApplicationContext reactContext, boolean debug) {
         super(reactContext);
@@ -294,7 +293,6 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
             return;
         }
 
-        this.w3Bridge = new Web3Bridge();
         Thread thread = new Thread() {
             @Override
             public void run() {

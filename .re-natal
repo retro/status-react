@@ -41,12 +41,13 @@
     "nfc-react-native",
     "react-native-http-bridge",
     "emojilib",
-    "react-native-mapbox-gl"
+    "react-native-mapbox-gl",
+    "bignumber.js"
   ],
   "imageDirs": [
     "images"
   ],
-  "iosHost": "localhost",
+  "iosHost": "10.0.1.4",
   "envRoots": {
     "dev": "env/dev",
     "prod": "env/prod"
